@@ -7,10 +7,13 @@ import KanbanBoard from "./components/KanbanBoard";
 import EditTaskModal from "./components/EditTaskModal";
 import DeleteConfirm from "./components/DeleteConfirm";
 
+// 🔥 Use ONE base URL for the backend (Render)
+const API_BASE = "https://voice-task-backend.onrender.com";
+
 function App() {
   const [tasks, setTasks] = useState([]);
 
-  // modals
+  // modal states
   const [showVoice, setShowVoice] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
@@ -18,52 +21,51 @@ function App() {
   // selected task for edit/delete
   const [selectedTask, setSelectedTask] = useState(null);
 
-  // Load tasks from backend
+  // Load all tasks from backend
   async function loadTasks() {
-    const res = await axios.get("https://voice-task-backend.onrender.com/api/tasks");
+    const res = await axios.get(`${API_BASE}/api/tasks`);
     setTasks(res.data);
   }
 
+  // Load tasks on page load
   useEffect(() => {
     loadTasks();
   }, []);
 
-  // create task from voice modal
+  // Create new task (from voice modal)
   async function handleCreateTask(task) {
-    await axios.post("https://voice-task-backend.onrender.com/api/tasks", task);
+    await axios.post(`${API_BASE}/api/tasks`, task);
     await loadTasks();
     setShowVoice(false);
   }
 
-  // Kanban drag-drop updates only statuses
+  // Update status (Kanban drag & drop)
   async function handleStatusChange(taskId, newStatus) {
-    await axios.put(`https://voice-task-backend.onrender.com/api/tasks/${taskId}`, {
-      status: newStatus,
-    });
+    await axios.put(`${API_BASE}/api/tasks/${taskId}`, { status: newStatus });
     await loadTasks();
   }
 
-  // save edited task
+  // Save edits from the edit modal
   async function handleEditSave(updatedTask) {
-    await axios.put(`https://voice-task-backend.onrender.com/api/tasks/${updatedTask.id}`, updatedTask);
+    await axios.put(`${API_BASE}/api/tasks/${updatedTask.id}`, updatedTask);
     await loadTasks();
     setShowEdit(false);
   }
 
-  // delete selected tasks
+  // Delete task
   async function handleDelete() {
-    await axios.delete(`https://voice-task-backend.onrender.com/api/tasks/${selectedTask.id}`);
+    await axios.delete(`${API_BASE}/api/tasks/${selectedTask.id}`);
     await loadTasks();
     setShowDelete(false);
   }
 
-  // When clicking "edit" on TaskList
+  // Open edit modal
   function openEdit(task) {
     setSelectedTask(task);
     setShowEdit(true);
   }
 
-  // when clicking "delete" on TaskList
+  // Open delete modal
   function openDelete(task) {
     setSelectedTask(task);
     setShowDelete(true);
@@ -86,13 +88,9 @@ function App() {
       <h2>Kanban Board</h2>
       <KanbanBoard tasks={tasks} onStatusChange={handleStatusChange} />
 
-      {/* Task List with edit & delete */}
+      {/* Task List */}
       <h2>Task List</h2>
-      <TaskList
-        tasks={tasks}
-        onEdit={openEdit}
-        onDelete={openDelete}
-      />
+      <TaskList tasks={tasks} onEdit={openEdit} onDelete={openDelete} />
 
       {/* Edit Modal */}
       <EditTaskModal
