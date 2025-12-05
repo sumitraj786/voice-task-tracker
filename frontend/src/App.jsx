@@ -28,14 +28,14 @@ function App() {
     loadTasks();
   }, []);
 
-  // Create task from voice modal
+  // create task from voice modal
   async function handleCreateTask(task) {
     await axios.post("http://localhost:4000/api/tasks", task);
     await loadTasks();
     setShowVoice(false);
   }
 
-  // Kanban drag-drop updates only status
+  // Kanban drag-drop updates only statuses
   async function handleStatusChange(taskId, newStatus) {
     await axios.put(`http://localhost:4000/api/tasks/${taskId}`, {
       status: newStatus,
@@ -43,14 +43,14 @@ function App() {
     await loadTasks();
   }
 
-  // Save edited task
+  // save edited task
   async function handleEditSave(updatedTask) {
     await axios.put(`http://localhost:4000/api/tasks/${updatedTask.id}`, updatedTask);
     await loadTasks();
     setShowEdit(false);
   }
 
-  // Delete selected task
+  // delete selected tasks
   async function handleDelete() {
     await axios.delete(`http://localhost:4000/api/tasks/${selectedTask.id}`);
     await loadTasks();
@@ -63,7 +63,7 @@ function App() {
     setShowEdit(true);
   }
 
-  // When clicking "delete" on TaskList
+  // when clicking "delete" on TaskList
   function openDelete(task) {
     setSelectedTask(task);
     setShowDelete(true);

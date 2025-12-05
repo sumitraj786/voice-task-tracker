@@ -7,10 +7,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const prisma = new PrismaClient();   // <-- This will now work normally
+const prisma = new PrismaClient();  
 app.set('prisma', prisma);
 
-// Routes
+// routes
 const voiceRouter = require('./routes/voice');
 const taskRouter = require('./routes/tasks');
 
@@ -22,4 +22,7 @@ app.get("/", (req, res) => {
   res.send("Backend is running");
 });
 
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+app.listen(PORT, () => {
+  console.log("Server running on port " + PORT);
+});
+

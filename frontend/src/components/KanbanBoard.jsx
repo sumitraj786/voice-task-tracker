@@ -2,7 +2,7 @@ import React from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 export default function KanbanBoard({ tasks, onStatusChange }) {
-  // Group tasks by status
+  // grouped tasks by status
   const columns = {
     "To Do": tasks.filter(t => t.status === "To Do"),
     "In Progress": tasks.filter(t => t.status === "In Progress"),

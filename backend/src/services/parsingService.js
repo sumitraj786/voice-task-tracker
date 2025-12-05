@@ -1,22 +1,9 @@
-/**
- * parsingService.js
- * Robust parser for transcripts.
- *
- * - Calls OpenAI to extract JSON fields.
- * - If OpenAI returns non-JSON text, try to extract JSON block.
- * - If JSON parsing still fails, fallback to simple heuristics:
- *     - priority: regex mapping (high/medium/low/critical)
- *     - dueDate: chrono-node parse on transcript
- *
- * Paste this file and restart your backend (nodemon will auto-restart).
- */
-
-const OpenAI = require("openai");
-const chrono = require("chrono-node");
+const OpenAI = require("openai"); //for OpenAi
+const chrono = require("chrono-node"); //for chrono
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// helper: map priority words to normalized values
+// helperfor, mapping priority words to normalized values
 function mapPriority(text) {
   if (!text) return null;
   const t = text.toLowerCase();
@@ -27,7 +14,7 @@ function mapPriority(text) {
   return null;
 }
 
-// helper: convert a date-text (like "next Friday morning") to ISO using chrono
+// onvert a date-text (like "next Friday morning") to ISO usingg chrono
 function convertDueDate(dueText) {
   if (!dueText) return null;
   const results = chrono.parse(dueText, new Date());
@@ -42,7 +29,7 @@ function convertDueDate(dueText) {
   return date.toISOString();
 }
 
-// heuristic fallback: if LLM fails, try to find priority and due date from transcript
+// heuristic fallback, if LLM fails, try to find priority and due date from transcript
 function heuristicParse(transcript) {
   const priority = mapPriority(transcript);
   // try chrono on full transcript
@@ -70,12 +57,12 @@ function heuristicParse(transcript) {
 }
 
 async function parseTranscript(transcript) {
-  // safety: return quick heuristic if transcript empty
+  // fopr saftey return quick heouristic if transcript empty
   if (!transcript || !transcript.trim()) {
     return { transcript, parsed: heuristicParse(transcript || "") };
   }
 
-  // Strong instruction to return only JSON. But we also handle when model adds text.
+  // strong instruction to return only JSON. But we also handle when model adds text.
   const prompt = `
 You are a JSON extractor. Given a single user sentence that describes a task, return a JSON object only.
 Do NOT add any extra text or explanation. The JSON keys must be:
@@ -110,7 +97,7 @@ Return JSON only, for example:
     try {
       parsedJson = JSON.parse(rawText);
     } catch (e) {
-      // If direct parse fails, try to extract a JSON block from the response
+      // If direct parse fails, try to extract a JSOn block from the response
       const jsonMatch = rawText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         try {
@@ -124,7 +111,7 @@ Return JSON only, for example:
       }
     }
 
-    // If we got parsedJson, normalize and convert date
+    // if we got parsedJson, normalize and convert date
     if (parsedJson) {
       // normalize fields
       const title = (parsedJson.title && parsedJson.title.trim()) || transcript.slice(0, 80);
@@ -147,12 +134,12 @@ Return JSON only, for example:
       };
     }
 
-    // If no valid JSON from model, fallback to heuristic parse
+    // if no valid JSON from model, fallback to heuristics parse
     return { transcript, parsed: heuristicParse(transcript) };
 
   } catch (err) {
     console.error("Error calling OpenAI or parsing response:", err);
-    // On any error, fallback to heuristics so UI still works
+    // On any error, fallback to heuristiics so UI still works
     return { transcript, parsed: heuristicParse(transcript) };
   }
 }
