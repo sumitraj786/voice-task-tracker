@@ -36,7 +36,7 @@ export default function VoiceModal({ open, onClose, onCreate }) {
     const stop = () => { if (recognition) recognition.stop(); };
 
     const parse = async () => {
-        const res = await axios.post("http://localhost:4000/api/voice/parse", { transcript });
+        const res = await axios.post("https://voice-task-backend.onrender.com/api/voice/parse", { transcript });
         setParsed(res.data.parsed || res.data);
     };
 
