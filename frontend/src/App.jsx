@@ -20,7 +20,7 @@ function App() {
 
   // Load tasks from backend
   async function loadTasks() {
-    const res = await axios.get("http://localhost:4000/api/tasks");
+    const res = await axios.get("https://voice-task-backend.onrender.com/api/tasks");
     setTasks(res.data);
   }
 
@@ -30,14 +30,14 @@ function App() {
 
   // create task from voice modal
   async function handleCreateTask(task) {
-    await axios.post("http://localhost:4000/api/tasks", task);
+    await axios.post("https://voice-task-backend.onrender.com/api/tasks", task);
     await loadTasks();
     setShowVoice(false);
   }
 
   // Kanban drag-drop updates only statuses
   async function handleStatusChange(taskId, newStatus) {
-    await axios.put(`http://localhost:4000/api/tasks/${taskId}`, {
+    await axios.put(`https://voice-task-backend.onrender.com/api/tasks/${taskId}`, {
       status: newStatus,
     });
     await loadTasks();
@@ -45,14 +45,14 @@ function App() {
 
   // save edited task
   async function handleEditSave(updatedTask) {
-    await axios.put(`http://localhost:4000/api/tasks/${updatedTask.id}`, updatedTask);
+    await axios.put(`https://voice-task-backend.onrender.com/api/tasks/${updatedTask.id}`, updatedTask);
     await loadTasks();
     setShowEdit(false);
   }
 
   // delete selected tasks
   async function handleDelete() {
-    await axios.delete(`http://localhost:4000/api/tasks/${selectedTask.id}`);
+    await axios.delete(`https://voice-task-backend.onrender.com/api/tasks/${selectedTask.id}`);
     await loadTasks();
     setShowDelete(false);
   }
