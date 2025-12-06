@@ -7,8 +7,8 @@ import KanbanBoard from "./components/KanbanBoard";
 import EditTaskModal from "./components/EditTaskModal";
 import DeleteConfirm from "./components/DeleteConfirm";
 
-// 🔥 Use ONE base URL for the backend (Render)
-const API_BASE = "https://voice-task-backend.onrender.com";
+//  using one base URL for the backend (Render)
+const API_BASE = "https://voice-task-tracker-backend.onrender.com";
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -27,19 +27,19 @@ function App() {
     setTasks(res.data);
   }
 
-  // Load tasks on page load
+  // load tasks on page load
   useEffect(() => {
     loadTasks();
   }, []);
 
-  // Create new task (from voice modal)
+  // create new task (from voice modal)
   async function handleCreateTask(task) {
     await axios.post(`${API_BASE}/api/tasks`, task);
     await loadTasks();
     setShowVoice(false);
   }
 
-  // Update status (Kanban drag & drop)
+  // update status (Kanban drag & drop)
   async function handleStatusChange(taskId, newStatus) {
     await axios.put(`${API_BASE}/api/tasks/${taskId}`, { status: newStatus });
     await loadTasks();
@@ -59,13 +59,13 @@ function App() {
     setShowDelete(false);
   }
 
-  // Open edit modal
+  // open the edit modal
   function openEdit(task) {
     setSelectedTask(task);
     setShowEdit(true);
   }
 
-  // Open delete modal
+  // open delete modal
   function openDelete(task) {
     setSelectedTask(task);
     setShowDelete(true);
@@ -77,7 +77,7 @@ function App() {
 
       <button onClick={() => setShowVoice(true)}>Open Voice Input</button>
 
-      {/* Voice Modal */}
+      {/* voice Modal */}
       <VoiceModal
         open={showVoice}
         onClose={() => setShowVoice(false)}
@@ -92,7 +92,7 @@ function App() {
       <h2>Task List</h2>
       <TaskList tasks={tasks} onEdit={openEdit} onDelete={openDelete} />
 
-      {/* Edit Modal */}
+      {/* edit Modal */}
       <EditTaskModal
         open={showEdit}
         task={selectedTask}
@@ -100,7 +100,7 @@ function App() {
         onSave={handleEditSave}
       />
 
-      {/* Delete Confirmation */}
+      {/* delete Confirmation */}
       <DeleteConfirm
         open={showDelete}
         onClose={() => setShowDelete(false)}

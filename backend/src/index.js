@@ -5,7 +5,7 @@ const { PrismaClient } = require("@prisma/client");
 
 const app = express();
 
-// ⭐ Very important: allow your deployed frontend
+// very important: allow your deployed frontend
 app.use(
   cors({
     origin: [
@@ -18,11 +18,11 @@ app.use(
 
 app.use(express.json());
 
-// Prisma client
+// prisma client
 const prisma = new PrismaClient();
 app.set("prisma", prisma);
 
-// Routes
+// routes
 const voiceRouter = require("./routes/voice");
 const taskRouter = require("./routes/tasks");
 
@@ -33,6 +33,6 @@ app.get("/", (req, res) => {
   res.send("Backend is running on Render");
 });
 
-// ⭐ VERY important: Render assigns dynamic PORT
+// very important: Render assigns dynamic PORT
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log("Server running on port " + PORT));
