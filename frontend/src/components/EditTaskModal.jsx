@@ -15,14 +15,13 @@ export default function EditTaskModal({ open, onClose, task, onSave }) {
 
   if (!open) return null;
 
-  const save = () => {
-    onSave({
-      ...task,
-      title,
-      priority,
-      dueDate: dueDate || null
-    });
-  };
+  onSave({
+    title,
+    priority,
+    dueDate,
+    description: task.description || "",
+    status: task.status || "To Do"
+  });
 
   return (
     <div className="modal-overlay">
