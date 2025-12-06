@@ -1,8 +1,15 @@
 import React from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
+function priorityColor(p){
+  if (!p) return "badge-none";
+  if (p.toLowerCase() === "high") return "badge-high";
+  if (p.toLowerCase() === "medium") return "badge-medium";
+  if (p.toLowerCase() === "low") return "badge-low";
+  return "badge-none";
+}
+
 export default function KanbanBoard({ tasks, onStatusChange }) {
-  // grouped tasks by status
   const columns = {
     "To Do": tasks.filter(t => t.status === "To Do"),
     "In Progress": tasks.filter(t => t.status === "In Progress"),
@@ -11,68 +18,48 @@ export default function KanbanBoard({ tasks, onStatusChange }) {
 
   function handleDragEnd(result) {
     if (!result.destination) return;
-
-    const { draggableId, destination } = result;
-    const newStatus = destination.droppableId;
-    onStatusChange(draggableId, newStatus);
+    const taskId = result.draggableId;
+    const newStatus = result.destination.droppableId;
+    onStatusChange(taskId, newStatus);
   }
 
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <div style={{ display: "flex", gap: "20px", padding: "20px" }}>
+    <div className="kanban-columns">
+      <DragDropContext onDragEnd={handleDragEnd}>
         {Object.keys(columns).map(status => (
           <Droppable droppableId={status} key={status}>
             {(provided) => (
-              <div
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-                style={{
-                  flex: 1,
-                  minHeight: "400px",
-                  padding: "10px",
-                  border: "1px solid #ccc",
-                  borderRadius: "8px",
-                  background: "#f8f9fa"
-                }}
-              >
-                <h3>{status}</h3>
-                {columns[status].map((task, index) => (
-                  <Draggable
-                    draggableId={String(task.id)}
-                    index={index}
-                    key={task.id}
-                  >
-                    {(provided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.dragHandleProps}
-                        {...provided.draggableProps}
-                        style={{
-                          padding: "10px",
-                          background: "white",
-                          marginBottom: "10px",
-                          borderRadius: "6px",
-                          boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
-                          ...provided.draggableProps.style
-                        }}
-                      >
-                        <strong>{task.title}</strong>
-                        <div style={{ fontSize: "12px", color: "#666" }}>
-                          Priority: {task.priority || "None"}
+              <div className="kanban-column" ref={provided.innerRef} {...provided.droppableProps}>
+                <div className="column-header">
+                  <div className="column-title">{status}</div>
+                  <div className="column-count">{columns[status].length}</div>
+                </div>
+
+                {columns[status].map((task, i) => (
+                  <Draggable draggableId={String(task.id)} index={i} key={task.id}>
+                    {(prov) => (
+                      <div className="task-card" ref={prov.innerRef} {...prov.draggableProps} {...prov.dragHandleProps}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <div style={{ fontWeight:700 }}>{task.title}</div>
+                          <div className={priorityColor(task.priority)} style={{ fontSize:12, padding: "4px 8px" }}>
+                            {task.priority || "None"}
+                          </div>
                         </div>
-                        <div style={{ fontSize: "12px", color: "#666" }}>
-                          Due: {task.dueDate ? new Date(task.dueDate).toLocaleString() : "None"}
+
+                        <div style={{ marginTop:8, fontSize:13, color:"var(--muted)" }}>
+                          {task.dueDate ? new Date(task.dueDate).toLocaleString() : "No due date"}
                         </div>
                       </div>
                     )}
                   </Draggable>
                 ))}
+
                 {provided.placeholder}
               </div>
             )}
           </Droppable>
         ))}
-      </div>
-    </DragDropContext>
+      </DragDropContext>
+    </div>
   );
 }

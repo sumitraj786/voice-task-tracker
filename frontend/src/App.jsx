@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+import "./styles.css";
+
 import VoiceModal from "./components/VoiceModal";
 import TaskList from "./components/TaskList";
 import KanbanBoard from "./components/KanbanBoard";
 import EditTaskModal from "./components/EditTaskModal";
 import DeleteConfirm from "./components/DeleteConfirm";
 
-//  using one base URL for the backend (Render)
+// using one base URL for the backend (Render)
 const API_BASE = "https://voice-task-tracker-backend.onrender.com";
 
 function App() {
@@ -23,8 +25,12 @@ function App() {
 
   // Load all tasks from backend
   async function loadTasks() {
-    const res = await axios.get(`${API_BASE}/api/tasks`);
-    setTasks(res.data);
+    try {
+      const res = await axios.get(`${API_BASE}/api/tasks`);
+      setTasks(res.data || []);
+    } catch (err) {
+      console.error("Failed to load tasks", err);
+    }
   }
 
   // load tasks on page load
@@ -72,40 +78,44 @@ function App() {
   }
 
   return (
-    <div className="p-4">
-      <h1 style={{ fontFamily: "Arial" }}>Voice Task Tracker</h1>
+    <div className="app-shell">
+      <div className="header">
+        <div className="brand">
+          <div className="logo">VT</div>
+          <div>
+            <div className="title">Voice Task Tracker</div>
+            <div className="small">Voice-driven tasks · React + Node + Prisma</div>
+          </div>
+        </div>
 
-      <button onClick={() => setShowVoice(true)}>Open Voice Input</button>
+        <div className="controls">
+          <button className="btn btn-ghost" onClick={loadTasks}>Refresh</button>
+          <button className="btn btn-primary" onClick={() => setShowVoice(true)}>New Task (Voice)</button>
+        </div>
+      </div>
 
-      {/* voice Modal */}
-      <VoiceModal
-        open={showVoice}
-        onClose={() => setShowVoice(false)}
-        onCreate={handleCreateTask}
-      />
+      <div className="layout">
+        <div>
+          <div className="kanban">
+            <KanbanBoard tasks={tasks} onStatusChange={handleStatusChange} />
+          </div>
+        </div>
 
-      {/* Kanban Board */}
-      <h2>Kanban Board</h2>
-      <KanbanBoard tasks={tasks} onStatusChange={handleStatusChange} />
+        <aside className="sidebar">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+            <div style={{ fontWeight: 700 }}>Tasks</div>
+            <div className="small">{tasks.length} total</div>
+          </div>
 
-      {/* Task List */}
-      <h2>Task List</h2>
-      <TaskList tasks={tasks} onEdit={openEdit} onDelete={openDelete} />
+          <TaskList tasks={tasks} onEdit={openEdit} onDelete={openDelete} />
+        </aside>
+      </div>
 
-      {/* edit Modal */}
-      <EditTaskModal
-        open={showEdit}
-        task={selectedTask}
-        onClose={() => setShowEdit(false)}
-        onSave={handleEditSave}
-      />
+      <VoiceModal open={showVoice} onClose={() => setShowVoice(false)} onCreate={handleCreateTask} />
 
-      {/* delete Confirmation */}
-      <DeleteConfirm
-        open={showDelete}
-        onClose={() => setShowDelete(false)}
-        onConfirm={handleDelete}
-      />
+      <EditTaskModal open={showEdit} task={selectedTask} onClose={() => setShowEdit(false)} onSave={handleEditSave} />
+
+      <DeleteConfirm open={showDelete} onClose={() => setShowDelete(false)} onConfirm={handleDelete} />
     </div>
   );
 }

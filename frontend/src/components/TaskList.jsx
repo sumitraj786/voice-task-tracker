@@ -1,63 +1,39 @@
 import React from "react";
 
+function priorityBadge(p) {
+  if (!p) return <span className="badge badge-none">No priority</span>;
+  if (p.toLowerCase() === "high") return <span className="badge badge-high">High</span>;
+  if (p.toLowerCase() === "medium") return <span className="badge badge-medium">Medium</span>;
+  if (p.toLowerCase() === "low") return <span className="badge badge-low">Low</span>;
+  return <span className="badge badge-none">{p}</span>;
+}
+
 export default function TaskList({ tasks, onEdit, onDelete }) {
+  if (!tasks) return null;
+
   return (
-    <div style={{ marginTop: "20px" }}>
-      {tasks.length === 0 && <p>No tasks available.</p>}
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {tasks.length === 0 && <div className="small center">No tasks available.</div>}
 
       {tasks.map((task) => (
-        <div
-          key={task.id}
-          style={{
-            padding: "12px",
-            marginBottom: "10px",
-            background: "white",
-            borderRadius: "6px",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
-          }}
-        >
-          <strong>{task.title}</strong>
+        <div key={task.id} className="task-card">
+          <div className="task-top">
+            <div>
+              <div className="task-title">{task.title}</div>
+              <div className="task-meta">
+                <div>{priorityBadge(task.priority)}</div>
+                <div>{task.status}</div>
+                <div>{task.dueDate ? new Date(task.dueDate).toLocaleString() : <span className="small">No due</span>}</div>
+              </div>
+            </div>
 
-          <div style={{ fontSize: "13px", color: "#555" }}>
-            Priority: {task.priority || "None"}
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <button className="btn btn-ghost" onClick={() => onEdit(task)} style={{ padding: "6px 8px" }}>Edit</button>
+              <button className="btn btn-outline" onClick={() => onDelete(task)} style={{ padding: "6px 8px", background: "transparent", color: "var(--danger)", borderColor: "rgba(220,38,38,0.08)" }}>Delete</button>
+            </div>
           </div>
 
-          <div style={{ fontSize: "13px", color: "#555" }}>
-            Status: {task.status}
-          </div>
-
-          <div style={{ fontSize: "13px", color: "#555" }}>
-            Due: {task.dueDate ? new Date(task.dueDate).toLocaleString() : "None"}
-          </div>
-
-          <div style={{ marginTop: "8px" }}>
-            <button
-              onClick={() => onEdit(task)}
-              style={{
-                marginRight: "10px",
-                padding: "5px 10px",
-                background: "#007bff",
-                color: "white",
-                borderRadius: "4px",
-                border: "none",
-              }}
-            >
-              Edit
-            </button>
-
-            <button
-              onClick={() => onDelete(task)}
-              style={{
-                padding: "5px 10px",
-                background: "red",
-                color: "white",
-                borderRadius: "4px",
-                border: "none",
-              }}
-            >
-              Delete
-            </button>
-          </div>
+          {task.description && <div style={{ fontSize: 13, color: "var(--muted)" }}>{task.description}</div>}
         </div>
       ))}
     </div>
