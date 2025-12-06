@@ -9,21 +9,17 @@ import KanbanBoard from "./components/KanbanBoard";
 import EditTaskModal from "./components/EditTaskModal";
 import DeleteConfirm from "./components/DeleteConfirm";
 
-// using one base URL for the backend (Render)
 const API_BASE = "https://voice-task-tracker-backend.onrender.com";
 
 function App() {
   const [tasks, setTasks] = useState([]);
 
-  // modal states
   const [showVoice, setShowVoice] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
 
-  // selected task for edit/delete
   const [selectedTask, setSelectedTask] = useState(null);
 
-  // Load all tasks from backend
   async function loadTasks() {
     try {
       const res = await axios.get(`${API_BASE}/api/tasks`);
@@ -33,45 +29,47 @@ function App() {
     }
   }
 
-  // load tasks on page load
   useEffect(() => {
     loadTasks();
   }, []);
 
-  // create new task (from voice modal)
   async function handleCreateTask(task) {
     await axios.post(`${API_BASE}/api/tasks`, task);
     await loadTasks();
     setShowVoice(false);
   }
 
-  // update status (Kanban drag & drop)
   async function handleStatusChange(taskId, newStatus) {
     await axios.put(`${API_BASE}/api/tasks/${taskId}`, { status: newStatus });
     await loadTasks();
   }
-
-  // Save edits from the edit modal
+  
   async function handleEditSave(updatedTask) {
-    await axios.put(`${API_BASE}/api/tasks/${updatedTask.id}`, updatedTask);
+    const cleaned = {
+      title: updatedTask.title,
+      description: updatedTask.description || "",
+      priority: updatedTask.priority || null,
+      dueDate: updatedTask.dueDate || null,
+      status: updatedTask.status || selectedTask.status
+    };
+
+    await axios.put(`${API_BASE}/api/tasks/${selectedTask.id}`, cleaned);
+
     await loadTasks();
     setShowEdit(false);
   }
 
-  // Delete task
   async function handleDelete() {
     await axios.delete(`${API_BASE}/api/tasks/${selectedTask.id}`);
     await loadTasks();
     setShowDelete(false);
   }
 
-  // open the edit modal
   function openEdit(task) {
     setSelectedTask(task);
     setShowEdit(true);
   }
 
-  // open delete modal
   function openDelete(task) {
     setSelectedTask(task);
     setShowDelete(true);
@@ -90,19 +88,19 @@ function App() {
 
         <div className="controls">
           <button className="btn btn-ghost" onClick={loadTasks}>Refresh</button>
-          <button className="btn btn-primary" onClick={() => setShowVoice(true)}>New Task (Voice)</button>
+          <button className="btn btn-primary" onClick={() => setShowVoice(true)}>
+            New Task (Voice)
+          </button>
         </div>
       </div>
 
       <div className="layout">
-        <div>
-          <div className="kanban">
-            <KanbanBoard tasks={tasks} onStatusChange={handleStatusChange} />
-          </div>
+        <div className="kanban">
+          <KanbanBoard tasks={tasks} onStatusChange={handleStatusChange} />
         </div>
 
         <aside className="sidebar">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
             <div style={{ fontWeight: 700 }}>Tasks</div>
             <div className="small">{tasks.length} total</div>
           </div>
@@ -111,11 +109,24 @@ function App() {
         </aside>
       </div>
 
-      <VoiceModal open={showVoice} onClose={() => setShowVoice(false)} onCreate={handleCreateTask} />
+      <VoiceModal
+        open={showVoice}
+        onClose={() => setShowVoice(false)}
+        onCreate={handleCreateTask}
+      />
 
-      <EditTaskModal open={showEdit} task={selectedTask} onClose={() => setShowEdit(false)} onSave={handleEditSave} />
+      <EditTaskModal
+        open={showEdit}
+        task={selectedTask}
+        onClose={() => setShowEdit(false)}
+        onSave={handleEditSave}
+      />
 
-      <DeleteConfirm open={showDelete} onClose={() => setShowDelete(false)} onConfirm={handleDelete} />
+      <DeleteConfirm
+        open={showDelete}
+        onClose={() => setShowDelete(false)}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }
